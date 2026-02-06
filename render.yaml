@@ -1,12 +1,7 @@
 services:
-  - type: web
+  - type: worker
     name: traitement-d-image
     runtime: python
-    buildCommand: |
-      apt-get update && apt-get install -y tesseract-ocr tesseract-ocr-fra
-      pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: python main.py
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
-
+    
