@@ -80,7 +80,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- MAIN --- #
 
 def main():
-    # Créer l'application (remplace Updater)
+    # Créer l'application
     application = Application.builder().token(config.BOT_TOKEN).build()
 
     # Commandes
@@ -98,7 +98,7 @@ def main():
         listen="0.0.0.0",
         port=PORT,
         url_path=config.BOT_TOKEN,
-        webhook_url=config.WEBHOOK_URL
+        webhook_url=f"{config.WEBHOOK_URL}/{config.BOT_TOKEN}"
     )
 
 if __name__ == "__main__":
