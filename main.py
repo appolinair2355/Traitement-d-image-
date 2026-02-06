@@ -1,5 +1,6 @@
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
+from telegram.ext import filters
 from PIL import Image
 from io import BytesIO
 import pytesseract
@@ -89,8 +90,8 @@ def main():
     dp.add_handler(CommandHandler("stats", stats))
     dp.add_handler(CommandHandler("clear", clear))
     
-    # Gestion des photos
-    dp.add_handler(MessageHandler(Filters.photo, handle_photo))
+    # Gestion des photos - CHANGEMENT ICI : filters.PHOTO au lieu de Filters.photo
+    dp.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     
     # Webhook sur le port 10000
     PORT = 10000
