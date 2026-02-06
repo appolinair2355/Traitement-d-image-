@@ -1,4 +1,3 @@
-from flask import Flask, request
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 from PIL import Image
@@ -7,11 +6,6 @@ import pytesseract
 import json
 import config
 import os
-import asyncio
-import threading
-
-# Flask app
-app = Flask(__name__)
 
 # Fichier JSON pour stocker les textes par utilisateur
 DATA_FILE = "data.json"
@@ -24,9 +18,6 @@ else:
     data = {}
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-
-# Application Telegram (globale)
-application = Application.builder().token(config.BOT_TOKEN).build()
 
 # --- COMMANDES --- #
 
@@ -86,45 +77,24 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-# --- FLASK ROUTES --- #
-
-@app.route('/')
-def home():
-    return "Bot is running!"
-
-@app.route(f'/{config.BOT_TOKEN}', methods=['POST'])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    asyncio.run(process_update(update))
-    return "OK", 200
-
-async def process_update(update):
-    await application.process_update(update)
-
 # --- MAIN --- #
 
-def setup_handlers():
+def main():
+    # Créer l'application
+    application = Application.builder().token(config.BOT_TOKEN).build()
+
+    # Commandes
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("stats", stats))
     application.add_handler(CommandHandler("clear", clear))
+    
+    # Gestion des photos
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
-
-def set_webhook():
-    webhook_url = f"{config.WEBHOOK_URL}/{config.BOT_TOKEN}"
-    application.bot.set_webhook(url=webhook_url)
-    print(f"Webhook set to: {webhook_url}")
+    
+    # Démarrer le polling
+    print("Bot démarré en mode polling...")
+    application.run_polling()
 
 if __name__ == "__main__":
-    # Setup
-    setup_handlers()
-    
-    # Initialize application
-    application.initialize()
-    
-    # Set webhook
-    set_webhook()
-    
-    # Run Flask
-    PORT = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=PORT)
+    main()
